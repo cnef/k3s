@@ -1,3 +1,5 @@
+// +build !mips,!mipsle,!mips64,!mips64le
+
 /*
    Copyright The containerd Authors.
 
