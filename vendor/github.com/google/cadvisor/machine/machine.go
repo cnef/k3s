@@ -23,6 +23,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
 	// s390/s390x changes
 	"runtime"
 
@@ -55,6 +56,10 @@ func GetClockSpeed(procInfo []byte) (uint64, error) {
 	// s390/s390x, aarch64 and arm32 changes
 	if isSystemZ() || isAArch64() || isArm32() {
 		return 0, nil
+	}
+
+	if isLoongsonKvmguest() {
+		return 1399 * 1000, nil
 	}
 
 	// First look through sys to find a max supported cpu frequency.
@@ -392,6 +397,17 @@ func isSystemZ() bool {
 	arch, err := getMachineArch()
 	if err == nil {
 		return strings.Contains(arch, "390")
+	}
+	return false
+}
+
+// Loongson kmv guest changes
+func isLoongsonKvmguest() bool {
+	uname := unix.Utsname{}
+	err := unix.Uname(&uname)
+	if err == nil {
+		release := string(uname.Release[:])
+		return strings.Contains(release, "loongson.kvmguest.5.mips64el")
 	}
 	return false
 }
